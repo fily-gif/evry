@@ -1,0 +1,4 @@
+aiohttp
+py-cord
+python-dotenv
+requests
