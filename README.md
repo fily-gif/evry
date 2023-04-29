@@ -5,4 +5,4 @@ A bot that can do evrything!
 2. `pyhton3 -m pip install -r req.txt`
 # How to launch:
 1. python3 main.py
-profit
+2. profit
