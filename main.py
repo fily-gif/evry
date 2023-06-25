@@ -12,8 +12,10 @@ import platform
 import json
 import requests
 import discord.utils
-import dotenv
 import io
+import ast
+from dotenv import load_dotenv
+
 
 from db import *
 from discord.ext import *
@@ -22,19 +24,21 @@ from datetime import datetime
 from discord import *
 from contextlib import *
 
-db = UserDatabase(str(os.getenv("db")))
+database_filename = str(os.getenv("db"))
+db = UserDatabase(database_filename)
 
 bot = discord.Bot()
 evryclr = discord.Color.from_rgb(179, 134, 39)
 intents = discord.Intents.default()
 intents.members = True
 start = time.time()
-dotenv.load_dotenv() # loads the .env file
+load_dotenv()
 
 token = str(os.getenv("TOKEN"))
-OWNERS = str(os.getenv("OWNERS" "clear_limit", "db")) 
+OWNERS = os.getenv("OWNERS")
+OWNERS = ast.literal_eval(str(OWNERS))
 creators = str(os.getenv("creators"))
-clear_limit = int(os.getenv("clear_limit")) 
+clear_limit = os.getenv("clear_limit")
 
 async def isfily(ctx):
     return ctx.author.id in OWNERS
@@ -61,6 +65,7 @@ def get_uptime():
 
 
 def restart_bot():
+    print('Restart requested!')
     os.execv(sys.executable, ['python3'] + sys.argv)
 
 @bot.slash_command(description="Get server information")
@@ -80,7 +85,7 @@ async def server(ctx):
 
     embed.add_field(name='Server ID', value=f'{ctx.guild.id}', inline=True)
 
-    embed.add_field(name='Server Owner', value=f'{ctx.guild.owner}', inline=True)
+    embed.add_field(name='Server Owner', value=f'{ctx.guild.owner}', inline=True) #FIXME: pomelo
 
     embed.add_field(name='Server Members', value=f'{ctx.guild.member_count}', inline=True)
 
@@ -132,9 +137,6 @@ async def clear(ctx, amount: int):
 
     # check if the user has permission to use this command
     if ctx.author.guild_permissions.manage_messages:
-
-
-
         if int(amount) >= clear_limit:
             await ctx.respond('Too many messages to delete!')
             return
@@ -144,8 +146,6 @@ async def clear(ctx, amount: int):
 
     else:
         await ctx.respond('You do not have permission to use this command!')
-
-
 
 @bot.slash_command(description='Add a reputation point to someone!')
 async def rep(ctx, member: discord.Member):
@@ -244,7 +244,7 @@ async def promote(ctx, role: discord.Role, member: discord.Member,):
 
         user = ctx.author
 
-        if user.guild_permissions.manage_roles == True or ctx.author.id in OWNERS:
+        if user.guild_permissions.manage_roles == True or str(ctx.author.id) in OWNERS:
 
             await member.add_roles(role)
             await ctx.respond(f'{member.mention} has been promoted to {role}!')
@@ -309,15 +309,18 @@ async def lock(ctx, lock: bool):
 
 @bot.slash_command(descriptions='Get user\'s profile picture.')
 async def avatar(ctx, member: discord.Member):
-
+    
+    username = f'{member.name}' # we assume that the target has pomelo
+    
+    if member.discriminator != '0':
         username = f'{member.name}#{member.discriminator}'
 
-        embed = discord.Embed(title=username, description=f'{member.name}\'s [avatar]({member.avatar})', color=evryclr)
+    embed = discord.Embed(title=username, description=f'{member.name}\'s [avatar]({member.avatar})', color=evryclr)
 
-        embed.set_image(url=member.avatar)
-        embed.set_footer(text=f'Made with ❤️ by {creators}')
+    embed.set_image(url=member.avatar)
+    embed.set_footer(text=f'Made with ❤️ by {creators}')
 
-        await ctx.respond(embed=embed)
+    await ctx.respond(embed=embed)
 
 
 @bot.slash_command(description='get the information about the bot!')
@@ -336,7 +339,7 @@ async def about(ctx):
 async def cat(ctx):
 
     async with aiohttp.ClientSession() as session:
-        async with session.get('https://some-random-api.ml/animal/cat') as resp:
+        async with session.get('https://some-random-api.com/animal/cat') as resp:
             if resp.status == 200:
 
                 data = await resp.json()
@@ -353,7 +356,7 @@ async def cat(ctx):
 async def dog(ctx):
 
     async with aiohttp.ClientSession() as session:
-        async with session.get('https://some-random-api.ml/animal/dog') as resp:
+        async with session.get('https://some-random-api.com/animal/dog') as resp:
 
             if resp.status == 200:
 
@@ -372,7 +375,7 @@ async def dog(ctx):
 async def fox(ctx):
 
     async with aiohttp.ClientSession() as session:
-        async with session.get('https://some-random-api.ml/animal/fox') as resp:
+        async with session.get('https://some-random-api.com/animal/fox') as resp:
 
             if resp.status == 200:
 
@@ -474,7 +477,7 @@ async def weather(ctx, city: str):
 
 @bot.slash_command(description='Random joke!')
 async def joke(ctx):
-    resp = requests.get('https://some-random-api.ml/joke')
+    resp = requests.get('https://some-random-api.com/joke')
 
     if resp.status_code == 200:
 
@@ -493,7 +496,7 @@ async def hex(ctx, color):
 
     if pattern.search(color) and len(color) == 6:
 
-        response = requests.get(url=f'https://some-random-api.ml/canvas/rgb?hex={color}')
+        response = requests.get(url=f'https://some-random-api.com/canvas/rgb?hex={color}')
         jsonData = json.loads(response.text)
 
         red = jsonData['r']
@@ -503,7 +506,7 @@ async def hex(ctx, color):
         color = discord.Color.from_rgb(red, green, blue)
 
         embed = discord.Embed(title=f'Color 0x{color}', color=color)
-        embed.set_image(url=f'https://some-random-api.ml/canvas/colorviewer?hex={color}')
+        embed.set_image(url=f'https://some-random-api.com/canvas/colorviewer?hex={color}')
 
         embed.set_author(name=ctx.author, icon_url=ctx.author.avatar)
 
@@ -534,7 +537,7 @@ async def lyrics(ctx, song_name):
 
     try:
 
-        response = requests.get(f'https://some-random-api.ml/lyrics?title={song_name}')
+        response = requests.get(f'https://some-random-api.com/lyrics?title={song_name}')
         json_data = json.loads(response.text)
 
         error = json_data.get('error')
@@ -586,21 +589,20 @@ async def restart(ctx):
 @bot.slash_command(description='!!OWNER ONLY!!, this will not work if you are not fily')
 async def cmd(ctx, *, code):
     if ctx.author.id in OWNERS:
-
         stdout = io.StringIO()
 
         try:
-            with contextlib.redirect_stdout(stdout):
-                exec(code)
 
-            exec(code)
+            with contextlib.redirect_stdout(stdout):
+
+                exec(f'async def _exec(ctx):\n    {code}')
+                await locals()['_exec'](ctx=ctx)
 
         except Exception as e:
             await ctx.respond(f'```py\n{e}```')
-
+        
         else:
             await ctx.respond(f'```py\n{stdout.getvalue()}```')
-
 
 @bot.slash_command(description='!!OWNER ONLY!!, this will not work if you are not fily')
 async def stop(ctx):
@@ -621,26 +623,57 @@ async def effect(ctx, filter: Option(choices=["blurple", "blur", "circle", "jpg"
     if filter == 'blurple':
 
         embed = discord.Embed(title='Blurpify!', color=evryclr)
-        embed.set_image(url=f'https://some-random-api.ml/canvas/blurple?avatar={str(authorUrl)}')
+        embed.set_image(url=f'https://some-random-api.com/canvas/blurple?avatar={str(authorUrl)}')
         await ctx.respond(embed=embed)
 
     elif filter =='blur':
 
         embed = discord.Embed(title='blur', color=evryclr)
-        embed.set_image(url=f'https://some-random-api.ml/canvas/misc/blur?avatar={str(authorUrl)[:-10]}')
+        embed.set_image(url=f'https://some-random-api.com/canvas/misc/blur?avatar={str(authorUrl)[:-10]}')
         await ctx.respond(embed=embed)
 
     elif filter == 'circle':
 
         embed = discord.Embed(title='circleify!', color=evryclr)
 
-        embed.set_image(url=f'https://some-random-api.ml/canvas/misc/circle?avatar={str(authorUrl)[:-10]}')
+        embed.set_image(url=f'https://some-random-api.com/canvas/misc/circle?avatar={str(authorUrl)[:-10]}')
         await ctx.respond(embed=embed)
 
     elif filter == 'jpg':
         embed = discord.Embed(title='JPG = Just Pretty Good', color=evryclr)
-        embed.set_image(url=f'https://some-random-api.ml/canvas/misc/jpg?avatar={str(authorUrl)[:-10]}')
+        embed.set_image(url=f'https://some-random-api.com/canvas/misc/jpg?avatar={str(authorUrl)[:-10]}')
         await ctx.respond(embed=embed)
+
+@bot.slash_command(description='!!OWNER ONLY!!, this will not work if you are not fily')
+async def tell(ctx, message, channel: discord.TextChannel):
+
+    if ctx.author.id in OWNERS:
+
+        await ctx.send(message)
+        await ctx.respond('Message sent!', ephemeral=True)
+
+    else:
+        await ctx.respond('Not enough permissions!')
+
+
+@bot.slash_command(description='Send feedback!')
+async def feedback(ctx, message):
+
+    user = await bot.fetch_user(831530536781873163)
+
+    await user.send(f'\"{message}\" by {ctx.author} ({ctx.author.id})')
+    await ctx.respond('feedback sent!')
+
+@bot.event
+async def on_guild_join(guild):
+
+    server = 959153143046881323
+
+    channel = bot.get_channel(server)
+
+    await channel.send(f'Joined {guild.name} ({guild.id}), owned by {guild.owner}')
+
+    print(f'Joined {guild.name} ({guild.id}), owned by {guild.owner} ({guild.owner_id})')
 
 @bot.event
 async def on_ready():
@@ -653,6 +686,7 @@ async def on_ready():
     print(f'{ping}ms')
     print('--------------------------------')
 
-    await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name="Music!"))
+    status = ['with /-commands!', 'with fily!', 'with evrything!']
+    await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.playing, name=random.choice(status)))
 
 bot.run(token)
