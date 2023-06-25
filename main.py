@@ -450,29 +450,25 @@ async def weather(ctx, city: str):
 
                 data = await resp.json()
 
-                sunset = datetime.fromtimestamp(
-                    data['sys']['sunrise']).strftime('%H:%M')
-                sunrise = datetime.fromtimestamp(
-                    data['sys']['sunset']).strftime('%H:%M')
+                sunset = datetime.fromtimestamp(data['sys']['sunset']).strftime('%H:%M')
+                sunrise = datetime.fromtimestamp(data['sys']['sunrise']).strftime('%H:%M')
 
                 weather_description = data['weather'][0]['description']
                 temperature = data['main']['temp']
 
                 city = data['name']
 
-                description = f'{weather_description}, {temperature}°C.\n\nSunrise: {sunrise}, sunset: {sunset}'
+                description = f'Weather description: {weather_description}, {temperature}°C.\n\nSunrise: {sunrise}, sunset: {sunset}'
 
-                embed = discord.Embed(
-                    title=f'Weather in {city}',
-                    description=description
-                )
+                embed = discord.Embed(title=f'Weather in {city}', description=description, color=evryclr)
 
                 embed.set_footer(text=f'Made with ❤️ by {creators}')
 
-                await ctx.respond(embed=embed, color=evryclr)
+                await ctx.respond(embed=embed)
 
             else:
                 await ctx.respond('An unknown error occured!')
+                print('test')
 
 
 @bot.slash_command(description='Random joke!')
