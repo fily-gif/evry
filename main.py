@@ -15,6 +15,7 @@ import discord.utils
 import io
 import ast
 from dotenv import load_dotenv
+import psutil
 
 
 from db import *
@@ -24,9 +25,11 @@ from datetime import datetime
 from discord import *
 from contextlib import *
 
+# initialize database for rep
 database_filename = str(os.getenv("db"))
 db = UserDatabase(database_filename)
 
+# settings
 bot = discord.Bot()
 evryclr = discord.Color.from_rgb(179, 134, 39)
 intents = discord.Intents.default()
@@ -34,39 +37,44 @@ intents.members = True
 start = time.time()
 load_dotenv()
 
+# env
 token = str(os.getenv("TOKEN"))
 OWNERS = os.getenv("OWNERS")
 OWNERS = ast.literal_eval(str(OWNERS))
 creators = str(os.getenv("creators"))
 clear_limit = os.getenv("clear_limit")
 
-async def isfily(ctx):
+# owner check
+async def isowner(ctx):
     return ctx.author.id in OWNERS
 
 
 def get_uptime():
     uptime = round((time.time() - start))
+    print(uptime) # debug
 
-    if uptime <= 60:
-        uptime = f'{str(uptime)} seconds'
+    result = ""
+
+    if int(uptime) <= 60:
+        result = f'{int(uptime)} seconds'
+
+    if int(uptime) >= 60:
+        result = f'{int(round(uptime/60, 2))} minutes'
+
+    if int(uptime) >= 3600:
+        result = f'{int(round(uptime/60, 2))} hours'
 
     else:
-        if uptime >= 60:
-            uptime = f'{str(round(uptime/60, 2))} minutes'
+        result = f'{int(uptime)} days'
 
-        else:
-            if uptime >= 3600:
-                uptime = f'{str(round(uptime/60, 2))} hours'
-
-            else:
-                uptime = f'{str(uptime)} days'
-
-    return uptime
+    return result
 
 
 def restart_bot():
+
     print('Restart requested!')
     os.execv(sys.executable, ['python3'] + sys.argv)
+
 
 @bot.slash_command(description="Get server information")
 async def server(ctx):
@@ -84,15 +92,10 @@ async def server(ctx):
     embed.set_thumbnail(url=f'{ctx.guild.icon}')
 
     embed.add_field(name='Server ID', value=f'{ctx.guild.id}', inline=True)
-
     embed.add_field(name='Server Owner', value=f'{ctx.guild.owner}', inline=True) #FIXME: pomelo
-
     embed.add_field(name='Server Members', value=f'{ctx.guild.member_count}', inline=True)
-
     embed.add_field(name='Server Channels', value=f'{len(ctx.guild.channels)}', inline=True)
-
     embed.add_field(name='Server Roles', value=f'{len(ctx.guild.roles)}', inline=True)
-
     embed.add_field(name='Server Created At', value=discord_timestamp, inline=True)
 
     embed.set_footer(text=f'Made with ❤️ by {creators}')
@@ -105,11 +108,11 @@ async def server(ctx):
 @bot.command(description='Get help!')
 async def help(ctx):
     # Get all the bot commands dynamically
+    
     commands = bot.commands
 
-    # Create the embed
     user = bot.user
-    embed = discord.Embed(title=f'evry!', description=f'A bot that can do EVRYthing! [Invite me!](https://discord.com/api/oauth2/authorize?client_id=867167961181454356&permissions=1101860826326&scope=bot)', color=evryclr)
+    embed = discord.Embed(title='evry!', description='A bot that can do EVRYthing! [Invite me!](https://discord.com/api/oauth2/authorize?client_id=867167961181454356&permissions=1101860826326&scope=bot)', color=evryclr)
 
     # Loop through the commands and add them to the embed
     for command in commands:
@@ -244,7 +247,7 @@ async def promote(ctx, role: discord.Role, member: discord.Member,):
 
         user = ctx.author
 
-        if user.guild_permissions.manage_roles == True or str(ctx.author.id) in OWNERS:
+        if user.guild_permissions.manage_roles or str(ctx.author.id) in OWNERS:
 
             await member.add_roles(role)
             await ctx.respond(f'{member.mention} has been promoted to {role}!')
@@ -261,7 +264,7 @@ async def demote(ctx, role: discord.Role, member: discord.Member):
 
     user = ctx.author
 
-    if user.guild_permissions.manage_roles == True:
+    if user.guild_permissions.manage_roles:
 
         await member.remove_roles(role)
         await ctx.respond(f'{member.mention} has been demoted from {role}!')
@@ -273,8 +276,6 @@ async def demote(ctx, role: discord.Role, member: discord.Member):
 @bot.slash_command(description='Random numbers!')
 async def roll(ctx, a: int, b: int):
 
-    user = ctx.author
-
     roll = random.randint(a, b)
     await ctx.respond(f'You got {roll}!')
 
@@ -284,7 +285,7 @@ async def lock(ctx, lock: bool):
 
     # check if the user has permission to use this command
 
-    if ctx.author.guild_permissions.manage_channels == True:
+    if ctx.author.guild_permissions.manage_channels:
 
         overwrite = ctx.channel.overwrites_for(ctx.guild.default_role)
 
@@ -309,9 +310,9 @@ async def lock(ctx, lock: bool):
 
 @bot.slash_command(descriptions='Get user\'s profile picture.')
 async def avatar(ctx, member: discord.Member):
-    
+
     username = f'{member.name}' # we assume that the target has pomelo
-    
+
     if member.discriminator != '0':
         username = f'{member.name}#{member.discriminator}'
 
@@ -328,9 +329,13 @@ async def about(ctx):
     embed = discord.Embed(title='Info', description=None, color=evryclr)
     embed.add_field(name='Python version', value=platform.python_version(), inline=True)
     embed.add_field(name='Pycord version', value=discord.__version__, inline=True)
-    embed.add_field(name='Bot uptime', value=f'{get_uptime()}', inline=True)
-    embed.add_field(name='Invite me!', value='[click!](https://discord.com/oauth2/authorize?client_id=867167961181454356&permissions=8&scope=bot)')
-    embed.add_field(name='Made with ❤️', value=f'by {creators}', inline=True)
+    embed.add_field(name='Bot uptime', value=get_uptime(), inline=True)
+    embed.add_field(name='Invite me!', value='[click!](https://discord.com/oauth2/authorize?client_id=867167961181454356&permissions=8&scope=bot)', inline=True)
+    embed.add_field(name='CPU usage', value=f"{psutil.cpu_percent()}%", inline=True)
+    embed.add_field(name='RAM usage', value=f'{psutil.virtual_memory().percent}%', inline=True)
+    embed.add_field(name='Host', value=f'{platform.system()}, {platform.release()}', inline=True)
+
+    embed.add_field(name='Made with ❤️', value=f'by {creators}')
 
     await ctx.respond(embed=embed)
 
@@ -406,7 +411,7 @@ async def nickname(ctx, member: discord.Member, nick=None):
 
     #check if the user has permission to use this command
 
-    if ctx.author.guild_permissions.manage_nicknames == True:
+    if ctx.author.guild_permissions.manage_nicknames:
 
         if nick is None:
 
@@ -511,7 +516,7 @@ async def hex(ctx, color):
     else:
         await ctx.respond('**Color argument is not hex number.**')
 
-@bot.slash_command(description='calc')
+@bot.slash_command(description='calculate something')
 async def calc(ctx, expression):
 
     allowed_chars = re.compile(r'^[0-9+\-*\/.() ]*$')
@@ -554,7 +559,7 @@ async def lyrics(ctx, song_name):
         await ctx.respond(embed=embed)
 
     except Exception as e:
-        ctx.send("Unknown error: {e}")
+        ctx.send(f"Unknown error: {e}")
 
 @bot.slash_command(description='Get a random color')
 async def color(ctx):
@@ -596,7 +601,7 @@ async def cmd(ctx, *, code):
 
         except Exception as e:
             await ctx.respond(f'```py\n{e}```')
-        
+
         else:
             await ctx.respond(f'```py\n{stdout.getvalue()}```')
 
