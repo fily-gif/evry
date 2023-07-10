@@ -35,9 +35,10 @@ evryclr = discord.Color.from_rgb(179, 134, 39)
 intents = discord.Intents.default()
 intents.members = True
 start = time.time()
-load_dotenv()
+
 
 # env
+load_dotenv()
 token = str(os.getenv("TOKEN"))
 OWNERS = os.getenv("OWNERS")
 OWNERS = ast.literal_eval(str(OWNERS))
@@ -50,24 +51,25 @@ async def isowner(ctx):
 
 
 def get_uptime():
-    uptime = round((time.time() - start))
-    print(uptime) # debug
+    uptime = round(time.time() - start)
+    print(uptime)  # debug
 
     result = ""
 
     if int(uptime) <= 60:
         result = f'{int(uptime)} seconds'
 
-    if int(uptime) >= 60:
+    elif int(uptime) >= 60 and int(uptime) < 3600:
         result = f'{int(round(uptime/60, 2))} minutes'
 
-    if int(uptime) >= 3600:
-        result = f'{int(round(uptime/60, 2))} hours'
+    elif int(uptime) >= 3600:
+        result = f'{int(round(uptime/3600, 2))} hours'
 
     else:
         result = f'{int(uptime)} days'
 
     return result
+
 
 
 def restart_bot():
@@ -108,7 +110,7 @@ async def server(ctx):
 @bot.command(description='Get help!')
 async def help(ctx):
     # Get all the bot commands dynamically
-    
+
     commands = bot.commands
 
     user = bot.user
