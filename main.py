@@ -30,10 +30,12 @@ database_filename = str(os.getenv("db"))
 db = UserDatabase(database_filename)
 
 # settings
-bot = discord.Bot()
+
 evryclr = discord.Color.from_rgb(179, 134, 39)
 intents = discord.Intents.default()
 intents.members = True
+intents.guilds = True
+bot = discord.Bot(intents=intents)
 start = time.time()
 
 
@@ -684,7 +686,11 @@ async def on_ready():
     evry = bot.user
     ping = round(bot.latency * 1000)
 
-    os.system('clear')
+    # determine the os
+    if os.name == 'nt':
+        os.system('cls')
+    else:
+        os.system('clear')
     print(f'{evry} {evry.id}')
     print(f'{ping}ms')
     print('--------------------------------')
