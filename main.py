@@ -45,10 +45,10 @@ token = str(os.getenv("TOKEN"))
 OWNERS = os.getenv("OWNERS")
 OWNERS = ast.literal_eval(str(OWNERS))
 creators = str(os.getenv("creators"))
-clear_limit = os.getenv("clear_limit")
+clear_limit = int(os.getenv("clear_limit"))
 
 # owner check
-async def isowner(ctx):
+async def isowner(ctx) -> bool:
     return ctx.author.id in OWNERS
 
 
@@ -75,7 +75,6 @@ def get_uptime():
 
 
 def restart_bot():
-
     print('Restart requested!')
     os.execv(sys.executable, ['python3'] + sys.argv)
 
@@ -84,11 +83,9 @@ def restart_bot():
 async def server(ctx):
 
     description = 'No description!'
-
     discord_timestamp = f"<t:{int(discord.utils.snowflake_time(ctx.guild.id).timestamp())}:F>"
 
     if ctx.guild.description is not None:
-
         description = ctx.guild.description
 
     embed = discord.Embed(title=f'{ctx.guild.name}', description=f'{description}', color=evryclr)
@@ -111,16 +108,11 @@ async def server(ctx):
 
 @bot.command(description='Get help!')
 async def help(ctx):
-    # Get all the bot commands dynamically
-
     commands = bot.commands
-
     user = bot.user
     embed = discord.Embed(title='evry!', description='A bot that can do EVRYthing! [Invite me!](https://discord.com/api/oauth2/authorize?client_id=867167961181454356&permissions=1101860826326&scope=bot)', color=evryclr)
 
-    # Loop through the commands and add them to the embed
-    for command in commands:
-        embed.add_field(name=f'/{command.name}', value=command.description, inline=True)
+    [embed.add_field(name=f'/{command.name}', value=command.description, inline=True) for command in commands]
 
     # Add the thumbnail and footer
     embed.set_thumbnail(url=f'{user.avatar}')
@@ -145,11 +137,11 @@ async def clear(ctx, amount: int):
     # check if the user has permission to use this command
     if ctx.author.guild_permissions.manage_messages:
         if int(amount) >= clear_limit:
-            await ctx.respond('Too many messages to delete!')
+            await ctx.respond(f'Too many messages to delete! [max: {clear_limit}]')
             return
 
         await ctx.channel.purge(limit=amount+1)
-        await ctx.respond(f'Deleted **{amount}** messages!')
+        await ctx.respond(f'Deleted **{amount+1}** messages!')
 
     else:
         await ctx.respond('You do not have permission to use this command!')
@@ -228,10 +220,11 @@ async def slowmode(ctx, seconds=0):
     #check if the user has permission to use this command
     if ctx.author.guild_permissions.manage_channels:
 
-        if seconds is None:
-
+        print(seconds)
+        if seconds is None or 0:
+            print(seconds)
             await ctx.channel.edit(slowmode_delay=seconds)
-            await ctx.respond('Slowmode has been reseted!')
+            await ctx.respond('Slowmode has been reset!')
 
             return
 
@@ -243,7 +236,7 @@ async def slowmode(ctx, seconds=0):
         await ctx.respond('You do not have permission to use this command!')
 
 
-@bot.slash_command(description='Allows users with proper permissions to assign roles. (requires manage roles permisison)')
+@bot.slash_command(description='Allows users to assign roles. (requires manage roles permisison)')
 async def promote(ctx, role: discord.Role, member: discord.Member,):
 
     # check if the user has permission to use this command
