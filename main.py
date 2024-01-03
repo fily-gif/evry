@@ -686,7 +686,7 @@ async def on_ready():
         os.system('clear')
     print(f'{evry} {evry.id}')
     print(f'{ping}ms')
-    print('--------------------------------')
+    print(f'{"-"*18}')
 
     status = ['with /-commands!', 'with fily!', 'with evrything!']
     await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.playing, name=random.choice(status)))
