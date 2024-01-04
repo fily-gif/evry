@@ -24,6 +24,7 @@ from discord.ui import *
 from datetime import datetime
 from discord import *
 from contextlib import *
+from discord.ext import commands
 
 # initialize database for rep
 database_filename = str(os.getenv("db"))
@@ -305,20 +306,23 @@ async def lock(ctx, lock: bool):
         await ctx.respond('You do not have permission to use this command!')
 
 
+import aiohttp
+
 @bot.slash_command(descriptions='Get user\'s profile picture.')
 async def avatar(ctx, member: discord.Member):
 
-    username = f'{member.name}' # we assume that the target has pomelo
+    username = f'{member.name}'  # assume that the target has pomelo
+    avatar_url = member.avatar.url
 
     if member.discriminator != '0':
         username = f'{member.name}#{member.discriminator}'
 
-    embed = discord.Embed(title=username, description=f'{member.name}\'s [avatar]({member.avatar})', color=evryclr)
+    async with aiohttp.ClientSession() as session:
+        async with session.get(avatar_url) as response:
+            avatar_content = await response.read()
 
-    embed.set_image(url=member.avatar)
-    embed.set_footer(text=f'Made with ❤️ by {creators}')
-
-    await ctx.respond(embed=embed)
+    # Send the avatar image as an attachment
+    await ctx.respond(content=f'{username}\'s avatar:', file=discord.File(avatar_content, filename="avatar.png"))
 
 
 @bot.slash_command(description='get the information about the bot!')
@@ -393,7 +397,7 @@ async def fox(ctx):
                 await ctx.respond('Error getting fox image ¯\_(ツ)_/¯')
 
 
-@bot.slash_command(description='Say something using the bot.')
+@bot.slash_command(description='Say something as the bot.')
 async def say(ctx, message):
 
     embed = discord.Embed(
@@ -410,14 +414,21 @@ async def nickname(ctx, member: discord.Member, nick=None):
 
     if ctx.author.guild_permissions.manage_nicknames:
 
-        if nick is None:
+        try:
 
-            await member.edit(nick=member.name)
-            await ctx.respond(f'{member.name} has been reseted')
-            return
+            if nick is None:
 
-        await member.edit(nick=nick)
-        await ctx.respond(f'{member.name} has been changed to {nick}')
+                await member.edit(nick=member.name)
+                await ctx.respond(f'{member.name} has been reset')
+                return
+
+            await member.edit(nick=nick)
+            await ctx.respond(f'{member.name} has been changed to {nick}')
+
+        except discord.ext.commands.MissingPermissions as e:
+
+            await ctx.respond(f'Evry does not have permission to do this! [{e}]')
+            print(e)
 
     else:
 
@@ -679,7 +690,6 @@ async def on_ready():
     evry = bot.user
     ping = round(bot.latency * 1000)
 
-    # determine the os
     if os.name == 'nt':
         os.system('cls')
     else:
