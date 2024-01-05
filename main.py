@@ -307,12 +307,12 @@ async def lock(ctx, lock: bool):
 
 
 import aiohttp
-
-@bot.slash_command(descriptions='Get user\'s profile picture.')
+# find a way to get the avatar, and send it as an ATTACHMENT
+@bot.slash_command(description='Get user\'s profile picture.')
 async def avatar(ctx, member: discord.Member):
 
     username = f'{member.name}'  # assume that the target has pomelo
-    avatar_url = member.avatar.url
+    avatar_url = member.avatar_url  # Use avatar_url instead of avatar.url
 
     if member.discriminator != '0':
         username = f'{member.name}#{member.discriminator}'
@@ -322,7 +322,8 @@ async def avatar(ctx, member: discord.Member):
             avatar_content = await response.read()
 
     # Send the avatar image as an attachment
-    await ctx.respond(content=f'{username}\'s avatar:', file=discord.File(avatar_content, filename="avatar.png"))
+    await ctx.send(content=f'{username}\'s avatar:', file=discord.File(avatar_content, filename="avatar.png"))
+
 
 
 @bot.slash_command(description='get the information about the bot!')
