@@ -24,6 +24,7 @@ from discord.ui import *
 from datetime import datetime
 from discord import *
 from contextlib import *
+from discord.ext import commands
 
 # initialize database for rep
 database_filename = str(os.getenv("db"))
@@ -45,10 +46,10 @@ token = str(os.getenv("TOKEN"))
 OWNERS = os.getenv("OWNERS")
 OWNERS = ast.literal_eval(str(OWNERS))
 creators = str(os.getenv("creators"))
-clear_limit = os.getenv("clear_limit")
+clear_limit = int(os.getenv("clear_limit"))
 
 # owner check
-async def isowner(ctx):
+async def isowner(ctx) -> bool:
     return ctx.author.id in OWNERS
 
 
@@ -75,7 +76,6 @@ def get_uptime():
 
 
 def restart_bot():
-
     print('Restart requested!')
     os.execv(sys.executable, ['python3'] + sys.argv)
 
@@ -84,11 +84,9 @@ def restart_bot():
 async def server(ctx):
 
     description = 'No description!'
-
     discord_timestamp = f"<t:{int(discord.utils.snowflake_time(ctx.guild.id).timestamp())}:F>"
 
     if ctx.guild.description is not None:
-
         description = ctx.guild.description
 
     embed = discord.Embed(title=f'{ctx.guild.name}', description=f'{description}', color=evryclr)
@@ -111,16 +109,11 @@ async def server(ctx):
 
 @bot.command(description='Get help!')
 async def help(ctx):
-    # Get all the bot commands dynamically
-
     commands = bot.commands
-
     user = bot.user
     embed = discord.Embed(title='evry!', description='A bot that can do EVRYthing! [Invite me!](https://discord.com/api/oauth2/authorize?client_id=867167961181454356&permissions=1101860826326&scope=bot)', color=evryclr)
 
-    # Loop through the commands and add them to the embed
-    for command in commands:
-        embed.add_field(name=f'/{command.name}', value=command.description, inline=True)
+    [embed.add_field(name=f'/{command.name}', value=command.description, inline=True) for command in commands]
 
     # Add the thumbnail and footer
     embed.set_thumbnail(url=f'{user.avatar}')
@@ -145,11 +138,11 @@ async def clear(ctx, amount: int):
     # check if the user has permission to use this command
     if ctx.author.guild_permissions.manage_messages:
         if int(amount) >= clear_limit:
-            await ctx.respond('Too many messages to delete!')
+            await ctx.respond(f'Too many messages to delete! [max: {clear_limit}]')
             return
 
         await ctx.channel.purge(limit=amount+1)
-        await ctx.respond(f'Deleted **{amount}** messages!')
+        await ctx.respond(f'Deleted **{amount+1}** messages!')
 
     else:
         await ctx.respond('You do not have permission to use this command!')
@@ -228,10 +221,11 @@ async def slowmode(ctx, seconds=0):
     #check if the user has permission to use this command
     if ctx.author.guild_permissions.manage_channels:
 
-        if seconds is None:
-
+        print(seconds)
+        if seconds is None or 0:
+            print(seconds)
             await ctx.channel.edit(slowmode_delay=seconds)
-            await ctx.respond('Slowmode has been reseted!')
+            await ctx.respond('Slowmode has been reset!')
 
             return
 
@@ -243,7 +237,7 @@ async def slowmode(ctx, seconds=0):
         await ctx.respond('You do not have permission to use this command!')
 
 
-@bot.slash_command(description='Allows users with proper permissions to assign roles. (requires manage roles permisison)')
+@bot.slash_command(description='Allows users to assign roles. (requires manage roles permisison)')
 async def promote(ctx, role: discord.Role, member: discord.Member,):
 
     # check if the user has permission to use this command
@@ -312,20 +306,24 @@ async def lock(ctx, lock: bool):
         await ctx.respond('You do not have permission to use this command!')
 
 
-@bot.slash_command(descriptions='Get user\'s profile picture.')
+import aiohttp
+# find a way to get the avatar, and send it as an ATTACHMENT
+@bot.slash_command(description='Get user\'s profile picture.')
 async def avatar(ctx, member: discord.Member):
 
-    username = f'{member.name}' # we assume that the target has pomelo
+    username = f'{member.name}'  # assume that the target has pomelo
+    avatar_url = member.avatar_url  # Use avatar_url instead of avatar.url
 
     if member.discriminator != '0':
         username = f'{member.name}#{member.discriminator}'
 
-    embed = discord.Embed(title=username, description=f'{member.name}\'s [avatar]({member.avatar})', color=evryclr)
+    async with aiohttp.ClientSession() as session:
+        async with session.get(avatar_url) as response:
+            avatar_content = await response.read()
 
-    embed.set_image(url=member.avatar)
-    embed.set_footer(text=f'Made with ❤️ by {creators}')
+    # Send the avatar image as an attachment
+    await ctx.send(content=f'{username}\'s avatar:', file=discord.File(avatar_content, filename="avatar.png"))
 
-    await ctx.respond(embed=embed)
 
 
 @bot.slash_command(description='get the information about the bot!')
@@ -400,7 +398,7 @@ async def fox(ctx):
                 await ctx.respond('Error getting fox image ¯\_(ツ)_/¯')
 
 
-@bot.slash_command(description='Say something using the bot.')
+@bot.slash_command(description='Say something as the bot.')
 async def say(ctx, message):
 
     embed = discord.Embed(
@@ -417,14 +415,21 @@ async def nickname(ctx, member: discord.Member, nick=None):
 
     if ctx.author.guild_permissions.manage_nicknames:
 
-        if nick is None:
+        try:
 
-            await member.edit(nick=member.name)
-            await ctx.respond(f'{member.name} has been reseted')
-            return
+            if nick is None:
 
-        await member.edit(nick=nick)
-        await ctx.respond(f'{member.name} has been changed to {nick}')
+                await member.edit(nick=member.name)
+                await ctx.respond(f'{member.name} has been reset')
+                return
+
+            await member.edit(nick=nick)
+            await ctx.respond(f'{member.name} has been changed to {nick}')
+
+        except discord.ext.commands.MissingPermissions as e:
+
+            await ctx.respond(f'Evry does not have permission to do this! [{e}]')
+            print(e)
 
     else:
 
@@ -686,14 +691,13 @@ async def on_ready():
     evry = bot.user
     ping = round(bot.latency * 1000)
 
-    # determine the os
     if os.name == 'nt':
         os.system('cls')
     else:
         os.system('clear')
     print(f'{evry} {evry.id}')
     print(f'{ping}ms')
-    print('--------------------------------')
+    print(f'{"-"*18}')
 
     status = ['with /-commands!', 'with fily!', 'with evrything!']
     await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.playing, name=random.choice(status)))
