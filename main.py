@@ -16,7 +16,7 @@ import io
 import ast
 from dotenv import load_dotenv
 import psutil
-
+import subprocess
 
 from db import *
 from discord.ext import *
@@ -52,6 +52,13 @@ clear_limit = int(os.getenv("clear_limit"))
 async def isowner(ctx) -> bool:
     return ctx.author.id in OWNERS
 
+def last_githash() -> str | None:
+    try:
+        git_hash = subprocess.check_output(['git', 'rev-parse', 'HEAD']).strip().decode('utf-8')
+        return git_hash[:7]
+    except Exception as e:
+        print(f"oops github is on fire: {e}")
+        return None
 
 def get_uptime():
     uptime = round(time.time() - start)
@@ -336,6 +343,7 @@ async def about(ctx):
     embed.add_field(name='CPU usage', value=f"{psutil.cpu_percent()}%", inline=True)
     embed.add_field(name='RAM usage', value=f'{psutil.virtual_memory().percent}%', inline=True)
     embed.add_field(name='Host', value=f'{platform.system()}, {platform.release()}', inline=True)
+    embed.add_field(name='Git hash', value=f'{last_githash()}')
 
     embed.add_field(name='Made with ❤️', value=f'by {creators}')
 
