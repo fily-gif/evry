@@ -327,11 +327,14 @@ async def avatar(ctx, member: discord.Member):
     async with aiohttp.ClientSession() as session:
         async with session.get(avatar_url) as resp:
             if resp.status != 200:
-                return await ctx.send('An error occured!')
+                return await ctx.respond("An error occured!")
             data = io.BytesIO(await resp.read())
-            await ctx.respond(file=discord.File(data, 'upload.png'))
 
+    embed = discord.Embed(color=evryclr, title=f'{username}\'s avatar!')
+    embed.set_image(url='attachment://avatar.url')
+    embed.set_footer(text=f'made with ❤️ by {creators}')
 
+    await ctx.respond(file=discord.File(data, 'upload.png'), embed=embed)
 
 @bot.slash_command(description='get the information about the bot!')
 async def about(ctx):
