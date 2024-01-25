@@ -1,3 +1,7 @@
 .env
 
 users.db
+
+None
+
+__pycache__
