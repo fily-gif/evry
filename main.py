@@ -637,6 +637,19 @@ async def stop(ctx):
         await ctx.respond('Not enough permissions!')
 
 
+@bot.slash_command(description='!!OWNER ONLY!!, this will not work if you are not fily')
+async def pull(ctx, hash=None):
+    
+        if ctx.author.id in OWNERS:
+    
+            if hash is None:
+                hash = last_githash()
+
+            os.system(f'git pull https://github.com/fily-gif/evry.git') # if this fails get git
+            restart_bot()
+        else:
+            await ctx.respond('Not enough permissions!')
+
 @bot.slash_command(name='effect', description='Applies effects on user\'s avatar.')
 async def effect(ctx, filter: Option(choices=["blurple", "blur", "circle", "jpg"]), user: discord.Member):
     authorUrl = user.avatar
