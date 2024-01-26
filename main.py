@@ -645,8 +645,14 @@ async def pull(ctx, hash=None):
             if hash is None:
                 hash = last_githash()
 
+            await ctx.respond(f'pulling {hash}')
             os.system(f'git pull https://github.com/fily-gif/evry.git') # if this fails get git
+            ctx.send('pulled! restarting the bot...')
             restart_bot()
+        
+        elif hash is not None:
+            ctx.respond(f'pulling {hash} (**BOILERPLATE**)')
+
         else:
             await ctx.respond('Not enough permissions!')
 
