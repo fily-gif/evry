@@ -1,0 +1,15 @@
+import discord
+import time
+
+token = ''
+
+owners = [831530536781873163, 409013194875731988]
+creators = 'fily.gif and mo4ki'
+
+clear_limit = 40
+start = time.time()
+evryclr = discord.Color.from_rgb(179, 134, 39)
+
+intents = discord.Intents.default()
+intents.members = True
+intents.guilds = True
