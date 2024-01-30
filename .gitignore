@@ -5,3 +5,5 @@ users.db
 None
 
 __pycache__
+sweater/__pycache__
+sweater/commands/__pycache__
