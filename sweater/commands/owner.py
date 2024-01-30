@@ -59,7 +59,7 @@ async def stop(ctx):
     if ctx.author.id in config.owners:
 
         await ctx.respond('stopping!')
-        exit()
+        exit(1)
 
     else:
         await ctx.respond('Not enough permissions!')
