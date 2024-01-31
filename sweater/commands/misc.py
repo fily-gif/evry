@@ -24,14 +24,15 @@ async def remind(ctx, seconds: int, message):
 @bot.slash_command(description='calculate something')
 async def calc(ctx, expression):
 
-    allowed_chars = re.compile(r'^[0-9+\-*\/.() ]*$')
+    #allows only numbers, +, -, *, /, ., (, ), and spaces, but not "**"
+    allowed_chars = re.compile(r'^[0-9\+\-\*\/\.\(\) ]$')
+
+    try:
+        result = round(eval(expression), 2)
+    except:
+        embed = discord.Embed(title=f'{expression} is not a valid input!', color=config.evryclr)
 
     if not allowed_chars.match(expression):
-        result = "Invalid input"
-    try:
-        result = eval(expression)
-        result = round(result, 2)
-    except:
         result = "Invalid input"
 
     embed = discord.Embed(title=f'{expression} = {result}', color=config.evryclr)
