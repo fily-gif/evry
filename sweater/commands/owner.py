@@ -1,12 +1,11 @@
 from sweater import bot
 import discord
 import sweater.config as config
-import io
-import contextlib
 import os
 import ast
 import sweater.utils as utils
 import sweater.config
+import subprocess
 
 @bot.slash_command(description='!!OWNER ONLY!!, this will not work if you are not fily')
 async def restart(ctx):
@@ -23,46 +22,40 @@ async def restart(ctx):
 @bot.slash_command(description='!!OWNER ONLY!!, this will not work if you are not fily')
 async def cmd(ctx, *, code):
     if ctx.author.id in config.owners:
+        try:
 
-        fn_name = "funny"
-        cmd = "\n".join(f"       {i}" for i in code.splitlines())
-        body = f"async def {fn_name}():\n{cmd}"
-        parsed = ast.parse(body)
-        body = parsed.body[0].body
-        utils.insert_returns(body)
+            fn_name = "funny"
+            cmd = "\n".join(f"       {i}" for i in code.splitlines())
+            body = f"async def {fn_name}():\n    await {cmd}"
+            parsed = ast.parse(body)
+            body = parsed.body[0].body
+            utils.insert_returns(body)
 
-        env = {
-            "bot": ctx.bot,
-            "discord": discord,
-            "ctx": ctx,
-            "__import__": __import__,
-            "config": sweater.config,
-            "utils": sweater.utils
-        }
+            env = {
+                "bot": ctx.bot,
+                "discord": discord,
+                "ctx": ctx,
+                "__import__": __import__,
+                "config": sweater.config,
+                "utils": sweater.utils,
+                "os": os
+            }
 
-        exec(compile(parsed, filename="<ast>", mode="exec"), env)
+            exec(compile(parsed, filename="<ast>", mode="exec"), env)
 
-        result = await eval(f"{fn_name}()", env)
+            result = await str(eval(f"await {fn_name}()", env))
 
-        if config.token not in result:
-            await ctx.respond(f"```py\n{result}```")
+            if config.token not in result:
+                await ctx.respond(f"```py\n{str(result)}```")
 
-        else:
-            await ctx.respond("guh, nice try")
+            else:
+                await ctx.respond("guh, nice try")
 
-    else:
-        await ctx.respond("You do not have permission to execute this command.")
-
-@bot.slash_command(description='!!OWNER ONLY!!, this will not work if you are not fily')
-async def stop(ctx):
-
-    if ctx.author.id in config.owners:
-
-        await ctx.respond('stopping!')
-        exit(1)
+        except Exception as e:
+            await ctx.respond(f"error! {e}")
 
     else:
-        await ctx.respond('Not enough permissions!')
+        await ctx.respond("Not enough permissions!")
 
 
 @bot.slash_command(description='!!OWNER ONLY!!, this will not work if you are not fily')
@@ -84,7 +77,16 @@ async def pull(ctx, hash=None):
         else:
             await ctx.respond('Not enough permissions!')
 
+@bot.slash_command(description='!!OWNER ONLY!!, this will not work if you are not fily')
+async def stop(ctx):
 
+    if ctx.author.id in config.owners:
+
+        await ctx.respond('stopping!')
+        exit(1)
+
+    else:
+        await ctx.respond('Not enough permissions!')
 
 @bot.slash_command(description='!!OWNER ONLY!!, this will not work if you are not fily')
 async def tell(ctx, message, channel: discord.TextChannel):
