@@ -30,22 +30,41 @@ async def server(ctx):
 
     await ctx.respond(embed=embed)
 
+class arrows(discord.ui.View):
 
-@bot.command(description='Get help!')
+    def commands_set(self, commands):
+            self.commands = commands
+
+    @discord.ui.button(label="8===D", style=discord.ButtonStyle.primary)
+    async def button_callback(self, button, interaction):
+
+        embed = discord.Embed(title='evry!', description='A bot that can do EVRYthing! [Invite me!](https://discord.com/api/oauth2/authorize?client_id=867167961181454356&permissions=1101860826326&scope=bot)', color=config.evryclr)
+
+        [embed.add_field(name=f'/{command.name}', value=command.description, inline=True) for command in self.commands[1]]
+
+        await interaction.edit_original_message(embed = embed) 
+
+@bot.slash_command(description='Get help!')
 async def help(ctx):
+# https://guide.pycord.dev/extensions/pages/paginator-basics
     commands = bot.commands
     user = bot.user
     embed = discord.Embed(title='evry!', description='A bot that can do EVRYthing! [Invite me!](https://discord.com/api/oauth2/authorize?client_id=867167961181454356&permissions=1101860826326&scope=bot)', color=config.evryclr)
 
-    [embed.add_field(name=f'/{command.name}', value=command.description, inline=True) for command in commands]
+    chunk_size = 25
+    commands_chunks = [commands[i:i + chunk_size] for i in range(0, len(commands), chunk_size)]
+
+    [embed.add_field(name=f'/{command.name}', value=command.description, inline=True) for command in commands_chunks[0]]
 
     # Add the thumbnail and footer
     embed.set_thumbnail(url=f'{user.avatar}')
     embed.set_footer(text=f'Made with ❤️ by {config.creators}')
 
-    # Send the embed as response
-    await ctx.respond(embed=embed)
+    arrows_obj = arrows()
+    arrows_obj.commands_set(commands_chunks)
 
+    # Send the embed as response
+    await ctx.respond(embed=embed, view=arrows_obj)
 
 @bot.slash_command(description='Returns discord <-> bot ping.')
 async def ping(ctx):
