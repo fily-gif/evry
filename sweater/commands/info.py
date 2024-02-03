@@ -31,7 +31,6 @@ async def server(ctx):
     await ctx.respond(embed=embed)
 
 
-
 @bot.command(description='Get help!')
 async def help(ctx):
     commands = bot.commands

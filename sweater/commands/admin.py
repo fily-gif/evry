@@ -78,7 +78,7 @@ async def promote(ctx, role: discord.Role, member: discord.Member,):
 
         user = ctx.author
 
-        if user.guild_permissions.manage_roles or str(ctx.author.id) in config.owners:
+        if user.guild_permissions.manage_roles:
 
             await member.add_roles(role)
             await ctx.respond(f'{member.mention} has been promoted to {role}!')

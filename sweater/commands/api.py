@@ -23,8 +23,8 @@ async def weather(ctx, city: str):
 
                 data = await resp.json()
 
-                sunset = datetime.fromtimestamp(data['sys']['sunset']).strftime('%H:%M')
-                sunrise = datetime.fromtimestamp(data['sys']['sunrise']).strftime('%H:%M')
+                sunset = datetime.datetime.fromtimestamp(data['sys']['sunset']).strftime('%H:%M')
+                sunrise = datetime.datetime.fromtimestamp(data['sys']['sunrise']).strftime('%H:%M')
 
                 weather_description = data['weather'][0]['description']
                 temperature = data['main']['temp']
