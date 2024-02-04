@@ -29,10 +29,11 @@ async def calc(ctx, expression):
 
     try:
         result = round(eval(expression), 2)
-    except:
+    except Exception as e:
         embed = discord.Embed(title=f'{expression} is not a valid input!', color=config.evryclr)
+        print(e)
 
-    if not allowed_chars.match(expression):
+    if not allowed_chars.search(expression):
         result = "Invalid input"
 
     embed = discord.Embed(title=f'{expression} = {result}', color=config.evryclr)

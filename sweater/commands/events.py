@@ -21,10 +21,10 @@ async def on_ready():
     evry = bot.user
     ping = round(bot.latency * 1000)
 
-    """if os.name == 'nt':
+    if os.name == 'nt':
         os.system('cls')
     else:
-        os.system('clear')"""
+        os.system('clear')
     print(f'{evry} {evry.id}')
     print(f'{ping}ms')
     print(f'{"-"*18}')
