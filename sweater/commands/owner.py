@@ -18,14 +18,15 @@ async def restart(ctx):
         await ctx.respond('Not enough permissions!')
 
 
-@bot.slash_command(description='!!OWNER ONLY!!, this will not work if you are not fily')
+@bot.command(description='!!OWNER ONLY!!, this will not work if you are not fily')
 async def cmd(ctx, *, code):
     if ctx.author.id in config.owners:
         try:
 
+            cmd = code.strip('` ')
             fn_name = "funny"
             cmd = "\n".join(f"  {i}" for i in code.splitlines())
-            body = f"async def {fn_name}(cmd):\nawait return {cmd}"
+            body = f"async def {fn_name}(cmd):\n{cmd}"
             parsed = ast.parse(body)
             body = parsed.body[0].body
             utils.insert_returns(body)
@@ -45,7 +46,7 @@ async def cmd(ctx, *, code):
             result = await str(eval(f"await {fn_name}()", env))
 
             if config.token not in result:
-                await ctx.respond(f"```py\n{str(result)}```")
+                await ctx.respond(f"```py\n{str(result)}\n```")
 
             else:
                 await ctx.respond("guh, nice try")

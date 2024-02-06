@@ -1,8 +1,9 @@
 
+from discord.ext import commands
 import discord
 from sweater import config
 
-bot = discord.Bot(intents=config.intents)
+bot = commands.Bot(intents=config.intents, command_prefix="e!")
 
 import sweater.commands
 
