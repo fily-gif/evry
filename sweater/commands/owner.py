@@ -5,7 +5,6 @@ import os
 import ast
 import sweater.utils as utils
 import sweater.config
-import subprocess
 
 @bot.slash_command(description='!!OWNER ONLY!!, this will not work if you are not fily')
 async def restart(ctx):
@@ -25,8 +24,8 @@ async def cmd(ctx, *, code):
         try:
 
             fn_name = "funny"
-            cmd = "\n".join(f"       {i}" for i in code.splitlines())
-            body = f"async def {fn_name}():\n    await {cmd}"
+            cmd = "\n".join(f"  {i}" for i in code.splitlines())
+            body = f"async def {fn_name}(cmd):\nawait return {cmd}"
             parsed = ast.parse(body)
             body = parsed.body[0].body
             utils.insert_returns(body)
@@ -67,8 +66,8 @@ async def pull(ctx, hash=None):
                 hash = utils.last_githash()
 
             await ctx.respond(f'pulling {hash}')
-            os.system(f'git pull https://github.com/fily-gif/evry.git') # if this fails get git
-            ctx.send('pulled! restarting the bot...')
+            os.system('git pull https://github.com/fily-gif/evry.git') # if this fails get git
+            await ctx.send('pulled! restarting the bot...')
             utils.restart_bot()
 
         elif hash is not None:
