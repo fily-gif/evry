@@ -3,7 +3,7 @@ from discord.ext import commands
 import discord
 from sweater import config
 
-bot = commands.Bot(intents=config.intents, command_prefix="e!")
+bot = discord.Bot(intents=config.intents, command_prefix="-")
 
 import sweater.commands
 
