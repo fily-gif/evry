@@ -35,14 +35,14 @@ class arrows(discord.ui.View):
     def commands_set(self, commands):
             self.commands = commands
 
-    @discord.ui.button(label="8===D", style=discord.ButtonStyle.primary)
+    @discord.ui.button(style=discord.ButtonStyle.primary, emoji="<:goright:1205006549727322123>")
     async def button_callback(self, button, interaction):
 
         embed = discord.Embed(title='evry!', description='A bot that can do EVRYthing! [Invite me!](https://discord.com/api/oauth2/authorize?client_id=867167961181454356&permissions=1101860826326&scope=bot)', color=config.evryclr)
 
         [embed.add_field(name=f'/{command.name}', value=command.description, inline=True) for command in self.commands[1]]
 
-        await interaction.edit_original_message(embed = embed) 
+        await interaction.edit_original_message(embed=embed) 
 
 @bot.slash_command(description='Get help!')
 async def help(ctx):
