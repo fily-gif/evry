@@ -106,13 +106,8 @@ async def pull(ctx, hash=None):
                 hash = hash
 
             await ctx.respond(f'pulling {hash}')
-<<<<<<< HEAD
             os.system(f'git init && git pull') # if this fails get git
             ctx.send('pulled! restarting the bot...')
-=======
-            os.system('git pull https://github.com/fily-gif/evry.git') # if this fails get git
-            await ctx.send('pulled! restarting the bot...')
->>>>>>> de68d682772b2b03c9f8827504542b4c6f664b90
             utils.restart_bot()
 
         else:
