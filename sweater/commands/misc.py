@@ -25,7 +25,7 @@ async def remind(ctx, seconds: int, message):
 async def calc(ctx, expression):
 
     #allows only numbers, +, -, *, /, ., (, ), and spaces, but not "**"
-    allowed_chars = re.compile(r'^[0-9\+\-\*\/\.\(\) ]$')
+    allowed_chars = re.compile(r'^[0-9\+\-\*\/\. ]$', re.X)
 
     try:
         result = round(eval(expression), 2)
@@ -33,8 +33,11 @@ async def calc(ctx, expression):
         embed = discord.Embed(title=f'{expression} is not a valid input!', color=config.evryclr)
         print(e)
 
-    if not allowed_chars.search(expression):
+    if not allowed_chars.search(expression, result):
         result = "Invalid input"
+
+    else:
+        result = result
 
     embed = discord.Embed(title=f'{expression} = {result}', color=config.evryclr)
     await ctx.respond(embed=embed)
