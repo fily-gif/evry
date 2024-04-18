@@ -21,20 +21,26 @@ async def remind(ctx, seconds: int, message):
 
     await ctx.send(f'{ctx.author.mention}, you have set a reminder to {message}')
 
+
 @bot.slash_command(description='calculate something')
 async def calc(ctx, expression):
 
     #allows only numbers, +, -, *, /, ., (, ), and spaces, but not "**"
     allowed_chars = re.compile(r'^[0-9\+\-\*\/\. ]$')
 
-    try:
-        result = eval(expression)
-    except Exception as e:
-        embed = discord.Embed(title=f'{expression} is not a valid input!', color=config.evryclr)
-        print(e)
+    if allowed_chars.search(expression):
 
-    if not allowed_chars.search(expression):
-        result = round(result, 2)
+        await ctx.respond('Invalid input!')
+        return
+
+    try:
+        result = round(eval(expression), 2)
+
+    except Exception as e:
+
+        await ctx.respond(f'An error occured: {e}')
+        print(e)
+        return
 
     embed = discord.Embed(title=f'{expression} = {result}', color=config.evryclr)
     await ctx.respond(embed=embed)
