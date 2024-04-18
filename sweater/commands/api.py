@@ -101,6 +101,33 @@ async def fox(ctx):
                 await ctx.respond('Error getting fox image ¯\_(ツ)_/¯')
 
 
+@bot.slash_command(description='Get the urban dictionary definition!')
+async def urban(ctx, term):
+    
+        url = f'https://api.urbandictionary.com/v0/define?term={term}'
+    
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as resp:
+    
+                if resp.status == 200:
+    
+                    data = await resp.json()
+    
+                    if len(data['list']) == 0:
+                        await ctx.respond('No definition found!')
+                        return
+    
+                    definition = data['list'][0]
+    
+                    embed = discord.Embed(title=term, description=definition['definition'], color=config.evryclr)
+                    embed.add_field(name='Example', value=definition['example'])
+                    embed.set_footer(text=f'Made with ❤️ by {config.creators}')
+                    await ctx.respond(embed=embed)
+    
+                else:
+                    await ctx.respond('An unknown error occured!')
+
+
 @bot.slash_command(description='Random joke!')
 async def joke(ctx):
     resp = requests.get('https://some-random-api.com/joke')
