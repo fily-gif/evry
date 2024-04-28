@@ -3,7 +3,6 @@ from sweater import bot
 import sweater.config as config
 import asyncio
 import discord
-import re
 import aiohttp
 import io
 
@@ -22,37 +21,13 @@ async def remind(ctx, seconds: int, message):
     await ctx.send(f'{ctx.author.mention}, you have set a reminder to {message}')
 
 
-@bot.slash_command(description='calculate something')
-async def calc(ctx, expression):
-
-    #allows only numbers, +, -, *, /, ., (, ), and spaces, but not "**"
-    allowed_chars = re.compile(r'^[0-9\+\-\*\/\. ]$')
-
-    if allowed_chars.search(expression):
-
-        await ctx.respond('Invalid input!')
-        return
-
-    try:
-        result = round(eval(expression), 2)
-
-    except Exception as e:
-
-        await ctx.respond(f'An error occured: {e}')
-        print(e)
-        return
-
-    embed = discord.Embed(title=f'{expression} = {result}', color=config.evryclr)
-    await ctx.respond(embed=embed)
-
-
 @bot.slash_command(description='Send feedback!')
 async def feedback(ctx, message):
 
     user = await bot.fetch_user(831530536781873163)
 
     await user.send(f'\"{message}\" by {ctx.author} ({ctx.author.id})')
-    await ctx.respond('feedback sent!')
+    await ctx.respond('feedback sent!', ephemeral=True)
 
 @bot.slash_command(description='Get user\'s profile picture.')
 async def avatar(ctx, member: discord.Member):

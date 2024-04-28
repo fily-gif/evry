@@ -1,10 +1,10 @@
 import discord
 from sweater import bot
 import sweater.config as config
+import datetime
 
 @bot.slash_command(description='Kick someone from the server. (requires manage users permission)')
 async def kick(ctx, member: discord.Member, reason=None):
-
 
     if ctx.author.guild_permissions.kick_members:
 
@@ -12,6 +12,18 @@ async def kick(ctx, member: discord.Member, reason=None):
         await ctx.respond(f'Kicked {member.mention} :hammer:')
 
         print(f'{ctx.message.replied_user} kicked {member.name}')
+
+    else:
+        await ctx.respond('You do not have permission to use this command!')
+
+
+@bot.slash_command(description='Timeout someone in the server. (requires manage users permission)')
+async def timeout(ctx, member: discord.Member, reason=None, time=datetime.utcnow()+0):
+
+    if ctx.author.guild_permissions.kick_members:
+
+        await member.timeout_for(reason=reason, until=time)
+        await ctx.respond(f'Timed out {member.mention} until {time} :hammer:')
 
     else:
         await ctx.respond('You do not have permission to use this command!')

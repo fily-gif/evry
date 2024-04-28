@@ -8,21 +8,22 @@ import sweater.config as config
 @bot.slash_command(description="Get server information")
 async def server(ctx):
 
+    guild = ctx.guild
     description = 'No description!'
-    discord_timestamp = f"<t:{int(discord.utils.snowflake_time(ctx.guild.id).timestamp())}:F>"
+    discord_timestamp = f"<t:{int(discord.utils.snowflake_time(guild.id).timestamp())}:F>"
 
-    if ctx.guild.description is not None:
-        description = ctx.guild.description
+    if guild.description is not None:
+        description = guild.description
 
-    embed = discord.Embed(title=f'{ctx.guild.name}', description=f'{description}', color=config.evryclr)
+    embed = discord.Embed(title=f'{guild.name}', description=f'{description}', color=config.evryclr)
 
-    embed.set_thumbnail(url=f'{ctx.guild.icon}')
+    embed.set_thumbnail(url=f'{guild.icon}')
 
-    embed.add_field(name='Server ID', value=f'{ctx.guild.id}', inline=True)
-    embed.add_field(name='Server Owner', value=f'{ctx.guild.owner}', inline=True) #FIXME: pomelo
-    embed.add_field(name='Server Members', value=f'{ctx.guild.member_count}', inline=True)
-    embed.add_field(name='Server Channels', value=f'{len(ctx.guild.channels)}', inline=True)
-    embed.add_field(name='Server Roles', value=f'{len(ctx.guild.roles)}', inline=True)
+    embed.add_field(name='Server ID', value=f'{guild.id}', inline=True)
+    embed.add_field(name='Server Owner', value=f'{guild.owner.name}', inline=True)
+    embed.add_field(name='Server Members', value=f'{guild.member_count}', inline=True)
+    embed.add_field(name='Server Channels', value=f'{len(guild.channels)}', inline=True)
+    embed.add_field(name='Server Roles', value=f'{len(guild.roles)}', inline=True)
     embed.add_field(name='Server Created At', value=discord_timestamp, inline=True)
 
     embed.set_footer(text=f'Made with ❤️ by {config.creators}')
@@ -81,7 +82,7 @@ async def about(ctx):
     embed.add_field(name='Python version', value=platform.python_version(), inline=True)
     embed.add_field(name='Pycord version', value=discord.__version__, inline=True)
     embed.add_field(name='Bot uptime', value=utils.get_uptime(), inline=True)
-    embed.add_field(name='Invite me!', value='[click!](https://discord.com/api/oauth2/authorize?client_id=867167961181454356&permissions=1514446122198&scope=bot)', inline=True)
+    embed.add_field(name='Invite me!', value=f'[click!](https://discord.com/api/oauth2/authorize?client_id={bot.id}&permissions=1514446122198&scope=bot)', inline=True)
     embed.add_field(name='CPU usage', value=f"{psutil.cpu_percent()}%", inline=True)
     embed.add_field(name='RAM usage', value=f'{psutil.virtual_memory().percent}%', inline=True)
     embed.add_field(name='Host', value=f'{platform.system()}, {platform.release()}', inline=True)

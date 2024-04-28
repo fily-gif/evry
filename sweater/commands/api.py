@@ -118,9 +118,10 @@ async def urban(ctx, term):
                         return
     
                     definition = data['list'][0]
+                    actual = definition.replace('[', '').replace(']', '')
     
-                    embed = discord.Embed(title=term, description=definition['definition'], color=config.evryclr)
-                    embed.add_field(name='Example', value=definition['example'])
+                    embed = discord.Embed(title=term, description=actual['definition'], color=config.evryclr)
+                    embed.add_field(name='Example:', value=actual['example'])
                     embed.set_footer(text=f'Made with ❤️ by {config.creators}')
                     await ctx.respond(embed=embed)
     
@@ -140,7 +141,7 @@ async def joke(ctx):
         return
 
     else:
-        await ctx.respond(f'Could not get the joke! {resp.status_code}')
+        await ctx.respond(f'Could not get the joke! The API returned {resp.status_code}')
 
 @bot.slash_command(name='hex', description='Displays hex color.')
 async def hex(ctx, color):
@@ -149,7 +150,7 @@ async def hex(ctx, color):
 
     if pattern.search(color) and len(color) == 6:
 
-        response = requests.get(url=f'https://some-random-api.com/canvas/rgb?hex={color}')
+        response = requests.get(url=f'https://placehold.it/480x480/{color.value}/fffrefff.png&text=')
         jsonData = json.loads(response.text)
 
         red = jsonData['r']
@@ -159,7 +160,7 @@ async def hex(ctx, color):
         color = discord.Color.from_rgb(red, green, blue)
 
         embed = discord.Embed(title=f'Color 0x{color}', color=color)
-        embed.set_image(url=f'https://some-random-api.com/canvas/colorviewer?hex={color}')
+        embed.set_image(url=f'https://placehold.it/480x480/{color.value}/fffrefff.png&text=')
 
         embed.set_author(name=ctx.author, icon_url=ctx.author.avatar)
 
@@ -172,42 +173,12 @@ async def hex(ctx, color):
 @bot.slash_command(description='Get a random color')
 async def color(ctx):
 
-    color = ''.join([random.choice('0123456789ABCDEF') for i in range(6)])
-    color = int(color, 16)
+    color = random.randint(0, 0xFFFFFF)
     color = discord.Colour(color)
 
     embed = discord.Embed(title='Random Color!', color=color)
     embed.set_image(
-        url=f'https://placehold.it/1280x720/{color.value:06X}/fffrefff.png&text=')
-    embed.description = f'Hex: #{color.value:06X}'
+        url=f'https://placehold.it/480x480/{color.value}/fffrefff.png&text=')
+    embed.description = f'Hex: #{color.value:X}'
     embed.set_footer(text=f'Made with ❤️ by {config.creators}')
     await ctx.respond(embed=embed)
-
-
-@bot.slash_command(name='effect', description='Applies effects on user\'s avatar.')
-async def effect(ctx, filter: Option(choices=["blurple", "blur", "circle", "jpg"]), user: discord.Member):
-    authorUrl = user.avatar
-
-    if filter == 'blurple':
-
-        embed = discord.Embed(title='Blurpify!', color=config.evryclr)
-        embed.set_image(url=f'https://some-random-api.com/canvas/blurple?avatar={str(authorUrl)}')
-        await ctx.respond(embed=embed)
-
-    elif filter =='blur':
-
-        embed = discord.Embed(title='blur', color=config.evryclr)
-        embed.set_image(url=f'https://some-random-api.com/canvas/misc/blur?avatar={str(authorUrl)[:-10]}')
-        await ctx.respond(embed=embed)
-
-    elif filter == 'circle':
-
-        embed = discord.Embed(title='circleify!', color=config.evryclr)
-
-        embed.set_image(url=f'https://some-random-api.com/canvas/misc/circle?avatar={str(authorUrl)[:-10]}')
-        await ctx.respond(embed=embed)
-
-    elif filter == 'jpg':
-        embed = discord.Embed(title='JPG = Just Pretty Good', color=config.evryclr)
-        embed.set_image(url=f'https://some-random-api.com/canvas/misc/jpg?avatar={str(authorUrl)[:-10]}')
-        await ctx.respond(embed=embed)
