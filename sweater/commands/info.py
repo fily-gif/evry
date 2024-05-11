@@ -82,7 +82,7 @@ async def about(ctx):
     embed.add_field(name='Python version', value=platform.python_version(), inline=True)
     embed.add_field(name='Pycord version', value=discord.__version__, inline=True)
     embed.add_field(name='Bot uptime', value=utils.get_uptime(), inline=True)
-    embed.add_field(name='Invite me!', value=f'[click!](https://discord.com/api/oauth2/authorize?client_id={bot.id}&permissions=1514446122198&scope=bot)', inline=True)
+    embed.add_field(name='Invite me!', value=f'[click!](https://discord.com/api/oauth2/authorize?client_id={bot.user.id}&permissions=1514446122198&scope=bot)', inline=True)
     embed.add_field(name='CPU usage', value=f"{psutil.cpu_percent()}%", inline=True)
     embed.add_field(name='RAM usage', value=f'{psutil.virtual_memory().percent}%', inline=True)
     embed.add_field(name='Host', value=f'{platform.system()}, {platform.release()}', inline=True)

@@ -118,10 +118,10 @@ async def urban(ctx, term):
                         return
     
                     definition = data['list'][0]
-                    actual = definition.replace('[', '').replace(']', '')
+                    actual = definition['definition'].replace('[', '').replace(']', '')
     
-                    embed = discord.Embed(title=term, description=actual['definition'], color=config.evryclr)
-                    embed.add_field(name='Example:', value=actual['example'])
+                    embed = discord.Embed(title=term, description=actual, color=config.evryclr)
+                    embed.add_field(name='Example:', value=definition['example'])
                     embed.set_footer(text=f'Made with ❤️ by {config.creators}')
                     await ctx.respond(embed=embed)
     

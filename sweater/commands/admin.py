@@ -1,7 +1,6 @@
 import discord
 from sweater import bot
 import sweater.config as config
-import datetime
 
 @bot.slash_command(description='Kick someone from the server. (requires manage users permission)')
 async def kick(ctx, member: discord.Member, reason=None):

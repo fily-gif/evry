@@ -17,16 +17,9 @@ async def restart(ctx):
 
 
 @bot.slash_command(description='!!OWNER ONLY!!, this will not work if you are not fily')
-async def pull(ctx, hash=None):
+async def pull(ctx):
 
         if ctx.author.id in config.owners:
-
-            if hash is None:
-                hash = utils.last_githash()
-
-            else:
-                hash = hash
-
             await ctx.respond(f'pulling {hash}')
             os.system('git init && git pull') # if this fails get git
             ctx.send('pulled! restarting the bot...')
@@ -52,7 +45,8 @@ async def tell(ctx, message, channel: discord.TextChannel):
 
     if ctx.author.id in config.owners:
 
-        await ctx.send(message)
+        channel = bot.get_channel(channel.id)
+        await channel.send(message)
         await ctx.respond('Message sent!', ephemeral=True)
 
     else:
