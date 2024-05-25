@@ -4,6 +4,7 @@ import os
 import sweater.config as config
 import sys
 import ast
+from PIL import Image
 
 def last_githash() -> str | None:
     try:
@@ -37,17 +38,10 @@ def restart_bot():
     print('Restart requested!')
     os.execv(sys.executable, ['python3'] + sys.argv)
 
-def insert_returns(body):
-    # insert return stmt if the last expression is a expression statement
-    if isinstance(body[-1], ast.Expr):
-        body[-1] = ast.Return(body[-1].value)
-        ast.fix_missing_locations(body[-1])
-
-    # for if statements, we insert returns into the body and the orelse
-    if isinstance(body[-1], ast.If):
-        insert_returns(body[-1].body)
-        insert_returns(body[-1].orelse)
-
-    # for with blocks, again we insert returns into the body
-    if isinstance(body[-1], ast.With):
-        insert_returns(body[-1].body)
+def hex_to_img(hex: str):
+    hex = hex.lstrip('#')
+    r, g, b = tuple(int(hex[i:i+2], 16) for i in (0, 2, 4))
+    
+    # Create a new image of 480x480 pixels filled with the desired color
+    new_img = Image.new("RGB", (480, 480), (r, g, b))
+    return new_img

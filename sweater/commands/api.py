@@ -6,9 +6,11 @@ import requests
 import random
 import json
 import re
+import io
 
 from sweater import bot 
 import sweater.config as config 
+import sweater.utils as utils
 
 @bot.slash_command(description='Gives you the weather!')
 async def weather(ctx, city: str):
@@ -144,30 +146,35 @@ async def joke(ctx):
         await ctx.respond(f'Could not get the joke! The API returned {resp.status_code}')
 
 @bot.slash_command(name='hex', description='Displays hex color.')
-async def hex(ctx, color):
+async def hex(ctx, color: str):
+    pattern = re.compile(r'^[0-9a-fA-F]{6}$')
 
-    pattern = re.compile(r'^[0-9a-f]+$', re.I)
+    if color.startswith("#"):
+        color = color[1:]
 
-    if pattern.search(color) and len(color) == 6:
+    if pattern.match(color):
 
-        response = requests.get(url=f'https://placehold.it/480x480/{color.value}/fffrefff.png&text=')
-        jsonData = json.loads(response.text)
+        img = utils.hex_to_img(color)
 
-        red = jsonData['r']
-        green = jsonData['g']
-        blue = jsonData['b']
+        # Convert the image to bytes
+        with io.BytesIO() as image_binary:
+            img.save(image_binary, 'PNG')
+            image_binary.seek(0)
 
-        color = discord.Color.from_rgb(red, green, blue)
+            # Create a discord file from the image bytes
+            discord_file = discord.File(fp=image_binary, filename=f'{color}.png')
 
-        embed = discord.Embed(title=f'Color 0x{color}', color=color)
-        embed.set_image(url=f'https://placehold.it/480x480/{color.value}/fffrefff.png&text=')
+        r, g, b = tuple(int(color[i:i+2], 16) for i in (0, 2, 4))
+        discord_color = discord.Color.from_rgb(r, g, b)
 
-        embed.set_author(name=ctx.author, icon_url=ctx.author.avatar)
+        embed = discord.Embed(title=f'Color #{color}', color=discord_color)
+        embed.set_image(url=f'attachment://{color}.png')
+        embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.avatar.url)
 
-        await ctx.respond(embed=embed)
+        await ctx.respond(embed=embed, file=discord_file)
 
     else:
-        await ctx.respond('**Color argument is not hex number.**')
+        await ctx.respond('**Color argument is not a valid hex number.**')
 
 
 @bot.slash_command(description='Get a random color')
