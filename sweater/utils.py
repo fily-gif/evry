@@ -39,7 +39,8 @@ def restart_bot():
     os.execv(sys.executable, ['python3'] + sys.argv)
 
 def hex_to_img(hex: str):
-    hex = hex.lstrip('#')
+    if "#" in hex: 
+        hex = str(hex).lstrip('#')
     r, g, b = tuple(int(hex[i:i+2], 16) for i in (0, 2, 4))
     
     # Create a new image of 480x480 pixels filled with the desired color

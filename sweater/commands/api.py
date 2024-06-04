@@ -179,13 +179,19 @@ async def hex(ctx, color: str):
 
 @bot.slash_command(description='Get a random color')
 async def color(ctx):
-
     color = random.randint(0, 0xFFFFFF)
     color = discord.Colour(color)
 
-    embed = discord.Embed(title='Random Color!', color=color)
-    embed.set_image(
-        url=f'https://placehold.it/480x480/{color.value}/fffrefff.png&text=')
+    img = utils.hex_to_img(str(color))
+
+    with io.BytesIO() as image_binary:
+        img.save(image_binary, 'PNG')
+        image_binary.seek(0)
+
+        discord_file = discord.File(fp=image_binary, filename=f'{color}.png')
+
+    embed = discord.Embed(title='Random color!', color=color)
+    embed.set_image(url=f'attachment://{color}.png')
     embed.description = f'Hex: #{color.value:X}'
     embed.set_footer(text=f'Made with ❤️ by {config.creators}')
-    await ctx.respond(embed=embed)
+    await ctx.respond(embed=embed, file=discord_file)
