@@ -43,8 +43,4 @@ async def avatar(ctx, member: discord.Member):
                 return await ctx.respond("An error occured!")
             data = io.BytesIO(await resp.read())
 
-    #embed = discord.Embed(color=config.evryclr, title=f'{username}\'s avatar!')
-    #embed.set_image(url='attachment://avatar.url')
-    #embed.set_footer(text=f'made with ❤️ by {config.creators}')
-
     await ctx.respond(f'{username}\'s avatar!', file=discord.File(data, 'upload.png'))
