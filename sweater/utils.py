@@ -3,7 +3,6 @@ import time
 import os
 import sweater.config as config
 import sys
-import ast
 from PIL import Image
 
 def last_githash() -> str | None:
