@@ -32,7 +32,7 @@ async def feedback(ctx, message):
 @bot.slash_command(description='Get user\'s profile picture.')
 async def avatar(ctx, member: discord.Member):
     username = f'{member.name}'  # assume that the target has pomelo
-    avatar_url = str(member.avatar)  # ??
+    avatar_url = str(member.display_avatar)  # ??
 
     if member.discriminator != '0':
         username = f'{member.name}#{member.discriminator}'

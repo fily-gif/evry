@@ -11,11 +11,10 @@ def last_githash() -> str | None:
         return git_hash[:7]
     except Exception as e:
         print(f"oops github is on fire: {e}")
-        return None
+        return
 
 def get_uptime():
     uptime = round(time.time() - config.start)
-    print(uptime)  # debug
 
     result = ""
 
@@ -29,7 +28,7 @@ def get_uptime():
         result = f'{int(round(uptime/3600, 2))} hours'
 
     else:
-        result = f'{int(uptime)} days'
+        result = f'{int(round(uptime/86400))} days'
 
     return result
 
