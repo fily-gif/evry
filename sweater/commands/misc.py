@@ -24,7 +24,7 @@ async def remind(ctx, seconds: int, message):
 @bot.slash_command(description='Send feedback!')
 async def feedback(ctx, message):
 
-    user = await bot.fetch_user(831530536781873163)
+    user = await bot.fetch_user(config.owners[0])
 
     await user.send(f'\"{message}\" by {ctx.author} ({ctx.author.id})')
     await ctx.respond('feedback sent!', ephemeral=True)
