@@ -5,10 +5,10 @@ import sweater.config as config
 import sys
 from PIL import Image
 
-def last_githash() -> str | None:
+def last_githash(repo="https://github.com/fily-gif/evry.git", branch="HEAD") -> str | None:
     try:
-        git_hash = subprocess.check_output(['git', 'rev-parse', 'HEAD']).strip().decode('utf-8')
-        return git_hash[:7]
+        git_hash =  subprocess.check_output(["git", "ls-remote", repo, branch]).decode("ascii").split().decode('ascii')
+        return git_hash[0][:7]
     except Exception as e:
         print(f"oops github is on fire: {e}")
         return
