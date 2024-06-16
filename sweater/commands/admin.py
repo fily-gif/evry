@@ -53,9 +53,8 @@ async def slowmode(ctx, seconds=0):
     #check if the user has permission to use this command
     if ctx.author.guild_permissions.manage_channels:
 
-        print(seconds)
+        print(f"{seconds}s") #?? was this for debug??
         if seconds is None or 0:
-            print(seconds)
             await ctx.channel.edit(slowmode_delay=seconds)
             await ctx.respond('Slowmode has been reset!')
 
@@ -71,10 +70,6 @@ async def slowmode(ctx, seconds=0):
 
 @bot.slash_command(description='Allows users to assign roles. (requires manage roles permisison)')
 async def promote(ctx, role: discord.Role, member: discord.Member,):
-
-    # check if the user has permission to use this command
-    if ctx.author.guild_permissions.manage_roles:
-
         user = ctx.author
 
         if user.guild_permissions.manage_roles:
@@ -84,9 +79,6 @@ async def promote(ctx, role: discord.Role, member: discord.Member,):
 
         else:
             await ctx.respond('Not enough permissions! You need to have **manage roles** permission to execute this command!')
-
-    else:
-        await ctx.respond('You do not have permission to use this command!')
 
 
 @bot.slash_command(description='Remove a role from someone! (requires manage roles permission)')
@@ -121,9 +113,9 @@ async def nickname(ctx, member: discord.Member, nick=None):
             await member.edit(nick=nick)
             await ctx.respond(f'{member.name} has been changed to {nick}')
 
-        except discord.ext.commands.MissingPermissions as e:
+        except discord.ext.commands.MissingPermissions or discord.ext.commands.BotMissingPermissions as e:
 
-            await ctx.respond(f'Evry does not have permission to do this! [{e}]')
+            await ctx.respond(f'Eiher you or evry does not have permission to do this! [{e}]')
             print(e)
 
     else:
@@ -132,7 +124,7 @@ async def nickname(ctx, member: discord.Member, nick=None):
 
 
 @bot.slash_command(description='Delete messages in the chat. (requires manage messages permission)')
-async def clear(ctx, amount: int):
+async def clear(ctx, amount: int = 1):
 
     # check if the user has permission to use this command
     if ctx.author.guild_permissions.manage_messages:
@@ -140,8 +132,8 @@ async def clear(ctx, amount: int):
             await ctx.respond(f'Too many messages to delete! [max: {config.clear_limit}]')
             return
 
-        await ctx.channel.purge(limit=amount+1)
-        await ctx.respond(f'Deleted **{amount+1}** messages!')
+        await ctx.channel.purge(limit=amount)
+        await ctx.respond(f'Deleted **{amount}** messages!')
 
     else:
         await ctx.respond('You do not have permission to use this command!')
