@@ -20,7 +20,7 @@ async def restart(ctx):
 async def pull(ctx):
 
         if ctx.author.id in config.owners:
-            await ctx.respond(f'pulling {hash}')
+            await ctx.respond(f'pulling {utils.last_githash()}...')
             try:
                 os.system('git init && git pull') # if this fails get git
                 ctx.send('pulled! restarting the bot...')

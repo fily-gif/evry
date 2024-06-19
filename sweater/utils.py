@@ -18,17 +18,17 @@ def get_uptime():
 
     result = ""
 
-    if int(uptime) <= 60:
-        result = f'{int(uptime)} seconds'
-
-    elif int(uptime) >= 60 and int(uptime) < 3600:
-        result = f'{int(round(uptime/60, 2))} minutes'
+    if int(uptime) >= 86400:
+        result = f'{int(round(uptime/86400))} days'
 
     elif int(uptime) >= 3600:
         result = f'{int(round(uptime/3600, 2))} hours'
 
-    elif int(uptime) >= 86400:
-        result = f'{int(round(uptime/86400))} days'
+    elif int(uptime) >= 60:
+        result = f'{int(round(uptime/60, 2))} minutes'
+
+    else:
+        result = f'{int(uptime)} seconds'
 
     return result
 
