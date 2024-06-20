@@ -19,7 +19,7 @@ def get_uptime():
     result = ""
 
     if int(uptime) >= 86400:
-        result = f'{int(round(uptime/86400))} days'
+        result = f'{int(round(uptime/86400, 2))} days'
 
     elif int(uptime) >= 3600:
         result = f'{int(round(uptime/3600, 2))} hours'
