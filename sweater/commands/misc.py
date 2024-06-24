@@ -14,6 +14,7 @@ async def roll(ctx, a: int, b: int):
     roll = random.randint(a, b)
     await ctx.respond(f'You got {roll}!')
 
+
 @bot.slash_command(description='Set a reminder to do something.')
 async def remind(ctx, seconds: int, message):
 

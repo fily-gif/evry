@@ -4,41 +4,30 @@ import requests
 
 from sweater import bot 
 import sweater.config as config 
-import sweater.utils as utils
 
 @bot.slash_command(description='Gives you the weather!')
 async def weather(ctx, city: str):
-
     url = f'http://api.openweathermap.org/data/2.5/weather?q={city}&appid=0c42f7f6b53b244c78a418f4f181282a&units=metric'
-
     async with aiohttp.ClientSession() as session:
-
         async with session.get(url) as resp:
-
             if resp.status == 200:
-
                 data = await resp.json()
-
-                sunset = f"<t:{data['sys']['sunset']}:t>" #datetime.datetime.fromtimestamp(data['sys']['sunset']).strftime('%H:%M')
-                sunrise = f"<t:{data['sys']['sunrise']}:t>" #datetime.datetime.fromtimestamp(data['sys']['sunrise']).strftime('%H:%M')
-
+                sunrise = data['sys']['sunrise']
+                sunset = data['sys']['sunset']
+                
+                # Format timestamps directly
+                sunrise_formatted = f"<t:{sunrise}:t>"
+                sunset_formatted = f"<t:{sunset}:t>"
+                
                 weather_description = data['weather'][0]['description']
                 temperature = data['main']['temp']
-
                 city = data['name']
-
-                description = f'Weather description: {weather_description}, {temperature}°C.\n\nSunrise: {sunrise}, sunset: {sunset}'
-
+                description = f'Weather description: {weather_description}, {temperature}°C.\n\nSunrise: {sunrise_formatted}, Sunset: {sunset_formatted}'
                 embed = discord.Embed(title=f'Weather in {city}', description=description, color=config.evryclr)
-
                 embed.set_footer(text=f'Made with ❤️ by {config.creators}')
-
                 await ctx.respond(embed=embed)
-
             else:
-                await ctx.respond('An unknown error occured!')
-                print('test')
-                
+                await ctx.respond('An unknown error occurred!')
 
 
 @bot.slash_command(description='Get a picture of a cute cat!')
