@@ -3,6 +3,8 @@ import discord
 import sweater.config as config
 import os
 import sweater.utils as utils
+import asyncio
+import ast
 
 @bot.slash_command(description='!!OWNER ONLY!!, this will not work if you are not fily')
 async def restart(ctx):
@@ -66,3 +68,44 @@ async def tell(ctx, message, channel: discord.TextChannel = None, user: discord.
     else:
         await ctx.respond('Not enough permissions!')
 
+@bot.slash_command(description='!!OWNER ONLY!!, this will not work if you are not fily')
+async def eeval(ctx, *, code: str):
+
+    if ctx.author.id in config.owners:
+
+        env = {
+            'bot': bot,
+            'discord': discord,
+            'ctx': ctx,
+            'channel': ctx.channel,
+            'author': ctx.author,
+            'guild': ctx.guild,
+            'message': ctx.message,
+            'config': config,
+            'utils': utils,
+            'os': os
+        }
+
+        def async_exec(code, env):
+            exec(f'async def __ex(): ' + ''.join(f'\n {l}' for l in code.split('\n')), env)
+            return env['__ex']()
+        try:
+            try:
+                parsed = ast.literal_eval(code)
+            except:
+                try:
+                    parsed = eval(code, globals(), env)
+                except SyntaxError:
+                    parsed = async_exec(code, env)
+
+            if asyncio.iscoroutine(parsed):
+                parsed = await parsed
+            if config.token in str(parsed):
+                await ctx.respond('Token detected! Nice try.')
+                return
+            await ctx.respond(f"```py\n{parsed}\n```")
+        except Exception as e:
+            await ctx.respond(f"```py\n{e}\n```")
+
+    else:
+        await ctx.respond('Not enough permissions!')
