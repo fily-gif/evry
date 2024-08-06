@@ -120,18 +120,22 @@ async def mcserver(ctx, server):
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as resp:
             if resp.status == 200:
-                data = await resp.json()
-                if data['online']:
-                    description = f"Server IP: {data['ip']}\nPlayers: {data['players']['online']}/{data['players']['max']}\nVersion: {data['version']}"
-                    embed = discord.Embed(title=f'{server} Server', description=description, color=config.evryclr)
-                    embed.set_thumbnail(url=f"https://api.mcsrvstat.us/icon/{server}")
-                    embed.set_footer(text=f'Made with ❤️ by {config.creators}')
-                    await ctx.respond(embed=embed)
-                else:
-                    await ctx.respond('Server is offline!')
+                try:
+                    data = await resp.json()
+                    if data['online']:
+                        description = f"Server IP: {data['ip']}\nPlayers: {data['players']['online']}/{data['players']['max']}\nVersion: {data['version']}"
+                        embed = discord.Embed(title=f'{server} Server', description=description, color=config.evryclr)
+                        embed.set_thumbnail(url=f"https://api.mcsrvstat.us/icon/{server}")
+                        embed.set_footer(text=f'Made with ❤️ by {config.creators}')
+                        await ctx.respond(embed=embed)
+                    else:
+                        await ctx.respond('Server is offline!')
+                except Exception as e:
+                    await ctx.respond(f'An unknown error occurred! {e}')
+                    print(e)
             else:
                 await ctx.respond('An unknown error occurred!')
-
+                print(resp.status)
 
 @bot.slash_command(description='Random joke!')
 async def joke(ctx):
