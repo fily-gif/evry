@@ -114,6 +114,25 @@ async def urban(ctx, term):
                     await ctx.respond('An unknown error occured!')
 
 
+@bot.slash_command(description='Get information about a minecraft server!')
+async def mcserver(ctx, server):
+    url = f'https://api.mcsrvstat.us/2/{server}'
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url) as resp:
+            if resp.status == 200:
+                data = await resp.json()
+                if data['online']:
+                    description = f"Server IP: {data['ip']}\nPlayers: {data['players']['online']}/{data['players']['max']}\nVersion: {data['version']}"
+                    embed = discord.Embed(title=f'{server} Server', description=description, color=config.evryclr)
+                    embed.set_thumbnail(url=f"https://api.mcsrvstat.us/icon/{server}")
+                    embed.set_footer(text=f'Made with ❤️ by {config.creators}')
+                    await ctx.respond(embed=embed)
+                else:
+                    await ctx.respond('Server is offline!')
+            else:
+                await ctx.respond('An unknown error occurred!')
+
+
 @bot.slash_command(description='Random joke!')
 async def joke(ctx):
     resp = requests.get('https://some-random-api.com/joke')
