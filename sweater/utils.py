@@ -13,6 +13,9 @@ def last_githash(repo="https://github.com/fily-gif/evry.git", branch="HEAD") -> 
         print(f"oops github is on fire: {e}")
         return
 
+def check_blocklist(user_id: int) -> bool:
+    return user_id in config.blocklist
+
 def get_uptime():
     uptime = round(time.time() - config.start)
 

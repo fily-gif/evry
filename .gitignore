@@ -9,3 +9,5 @@ sweater/__pycache__
 sweater/commands/__pycache__
 
 .github
+.venv
+.vscode

@@ -109,3 +109,11 @@ async def eeval(ctx, *, code: str):
 
     else:
         await ctx.respond('Not enough permissions!')
+
+@bot.slash_command(description='!!OWNER ONLY!!, this will not work if you are not fily')
+async def blocklist(ctx, user: discord.Member):
+	if user.id in config.blocklist:
+		await ctx.respond('User is already in the blocklist!')
+	else:
+		blocklist.append(user.id)
+		await ctx.respond(f'{user.mention} has been added to the blocklist!')
