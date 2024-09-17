@@ -1,6 +1,7 @@
 from sweater import bot
 import discord
 import sweater.config as config
+from config import owners, token
 import os
 import sweater.utils as utils
 import asyncio
@@ -9,7 +10,7 @@ import ast
 @bot.slash_command(description='!!OWNER ONLY!!, this will not work if you are not fily')
 async def restart(ctx):
 
-    if ctx.author.id in config.owners:
+    if ctx.author.id in owners:
 
         await ctx.respond('restarting!')
         utils.restart_bot()
@@ -21,10 +22,10 @@ async def restart(ctx):
 @bot.slash_command(description='!!OWNER ONLY!!, this will not work if you are not fily')
 async def pull(ctx):
 
-        if ctx.author.id in config.owners:
+        if ctx.author.id in owners:
             await ctx.respond(f'pulling {utils.last_githash()}...')
             try:
-                os.system('git init && git pull') # if this fails get git
+                os.system('git pull') # if this fails get git
                 ctx.send('pulled! restarting the bot...')
             except Exception as e:
                 ctx.send(f'Error: {e}\n\nIs git installed?')
@@ -37,7 +38,7 @@ async def pull(ctx):
 @bot.slash_command(description='!!OWNER ONLY!!, this will not work if you are not fily')
 async def stop(ctx):
 
-    if ctx.author.id in config.owners:
+    if ctx.author.id in owners:
 
         await ctx.respond('stopping!')
         exit(1)
@@ -48,7 +49,7 @@ async def stop(ctx):
 @bot.slash_command(description='!!OWNER ONLY!!, this will not work if you are not fily')
 async def tell(ctx, message, channel: discord.TextChannel = None, user: discord.User = None):
 
-    if ctx.author.id in config.owners:
+    if ctx.author.id in owners:
 
         if user is not None:
             user = bot.get_user(user.id)
@@ -71,7 +72,7 @@ async def tell(ctx, message, channel: discord.TextChannel = None, user: discord.
 @bot.slash_command(description='!!OWNER ONLY!!, this will not work if you are not fily')
 async def eeval(ctx, *, code: str):
 
-    if ctx.author.id in config.owners:
+    if ctx.author.id in owners:
 
         env = {
             'bot': bot,
@@ -100,7 +101,7 @@ async def eeval(ctx, *, code: str):
 
             if asyncio.iscoroutine(parsed):
                 parsed = await parsed
-            if config.token in str(parsed):
+            if token in str(parsed):
                 await ctx.respond('Token detected! Nice try.')
                 return
             await ctx.respond(f"```py\n{parsed}\n```")
@@ -109,11 +110,3 @@ async def eeval(ctx, *, code: str):
 
     else:
         await ctx.respond('Not enough permissions!')
-
-@bot.slash_command(description='!!OWNER ONLY!!, this will not work if you are not fily')
-async def blocklist(ctx, user: discord.Member):
-	if user.id in config.blocklist:
-		await ctx.respond('User is already in the blocklist!')
-	else:
-		blocklist.append(user.id)
-		await ctx.respond(f'{user.mention} has been added to the blocklist!')

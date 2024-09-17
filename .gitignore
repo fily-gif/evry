@@ -4,10 +4,11 @@ users.db
 
 None
 
-__pycache__
-sweater/__pycache__
-sweater/commands/__pycache__
+__pycache__/
+sweater/__pycache__/
+sweater/commands/__pycache__/
 
-.github
-.venv
-.vscode
+.github/
+.venv/
+venv/
+.vscode/

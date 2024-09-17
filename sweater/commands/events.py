@@ -1,4 +1,5 @@
 from sweater import bot
+from sweater.config import status
 import os
 import discord
 import random
@@ -29,6 +30,5 @@ async def on_ready():
     print(f'{ping}ms')
     print(f'{"-"*18}')
 
-    status = ['with /-commands!', 'with fily!', 'with evrything!']
     await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.playing, name=random.choice(status)))
 

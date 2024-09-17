@@ -4,6 +4,7 @@ import os
 import sweater.config as config
 import sys
 from PIL import Image
+import re
 
 def last_githash(repo="https://github.com/fily-gif/evry.git", branch="HEAD") -> str | None:
     try:
@@ -13,10 +14,7 @@ def last_githash(repo="https://github.com/fily-gif/evry.git", branch="HEAD") -> 
         print(f"oops github is on fire: {e}")
         return
 
-def check_blocklist(user_id: int) -> bool:
-    return user_id in config.blocklist
-
-def get_uptime():
+def get_uptime() -> str:
     uptime = round(time.time() - config.start)
 
     result = ""
@@ -39,7 +37,7 @@ def restart_bot():
     print('Restart requested!')
     os.execv(sys.executable, ['python3'] + sys.argv)
 
-def hex_to_img(hex: str):
+def hex_to_img(hex: str) -> Image:
     if "#" in hex: 
         hex = str(hex).lstrip('#')
     r, g, b = tuple(int(hex[i:i+2], 16) for i in (0, 2, 4))
@@ -47,3 +45,15 @@ def hex_to_img(hex: str):
     # Create a new image of 480x480 pixels filled with the desired color
     new_img = Image.new("RGB", (480, 480), (r, g, b))
     return new_img
+
+def convert_time(time: int) -> int:
+    if 'm' in time:
+        time = int(time[:-1]) * 60, "minutes"
+    elif 'h' in time:
+        time = int(time[:-1]) * 3600, "hours"
+    elif 'd' in time:
+        time = int(time[:-1]) * 86400, "days"
+    else:
+        time = int(time), "seconds"
+
+    return time

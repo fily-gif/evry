@@ -4,6 +4,7 @@ import time
 token = ''
 
 owners = [831530536781873163, 409013194875731988, 744276454946242723]
+status = ['with /-commands!', 'with fily!', 'with evrything!']
 creators = 'fily.gif and mo4ki'
 
 clear_limit = 40

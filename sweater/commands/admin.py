@@ -1,6 +1,6 @@
 import discord
 from sweater import bot
-import sweater.config as config
+from sweater.config import clear_limit
 
 @bot.slash_command(description='Kick someone from the server. (requires manage users permission)')
 async def kick(ctx, member: discord.Member, reason=None):
@@ -48,12 +48,11 @@ async def unban(ctx, user_id):
 
 
 @bot.slash_command(description='Set the slowmode for the channel. (requires manage channels permisison)')
-async def slowmode(ctx, seconds=0):
+async def slowmode(ctx, seconds=None):
 
     #check if the user has permission to use this command
     if ctx.author.guild_permissions.manage_channels:
 
-        print(f"{seconds}s") #?? was this for debug??
         if seconds is None or 0:
             await ctx.channel.edit(slowmode_delay=seconds)
             await ctx.respond('Slowmode has been reset!')

@@ -1,7 +1,7 @@
 import re
 import random
 from sweater import bot
-import sweater.config as config
+from sweater.config import owners, creators
 import sweater.utils as utils
 import asyncio
 import discord
@@ -16,18 +16,20 @@ async def roll(ctx, a: int, b: int):
 
 
 @bot.slash_command(description='Set a reminder to do something.')
-async def remind(ctx, seconds: int, message):
+async def remind(ctx, time: int, message):
 
-    await ctx.respond(f'I have set your reminder to {message} in {seconds}s')
-    await asyncio.sleep(seconds)
+    amount = utils.convert_time(time)
 
-    await ctx.send(f'{ctx.author.mention}, you have set a reminder to {message}')
+    await ctx.respond(f'I will remind you about {message} in {amount[0]} {amount[1]}!')
+
+    await asyncio.sleep(amount[0])
+    await ctx.respond(f'{ctx.author.mention}, you have set a reminder for {message} {amount[0]} {amount[1]} ago!!')
 
 
 @bot.slash_command(description='Send feedback!')
 async def feedback(ctx, message):
 
-    user = await bot.fetch_user(config.owners[0])
+    user = await bot.fetch_user(owners[0])
 
     await user.send(f'\"{message}\" by {ctx.author} ({ctx.author.id})')
     await ctx.respond('feedback sent!', ephemeral=True)
@@ -96,5 +98,5 @@ async def color(ctx):
     embed = discord.Embed(title=f'Color #{color}', color=discord_color)
     embed.set_image(url=f'attachment://{color}.png')
     embed.description = f'Hex: #{color}'
-    embed.set_footer(text=f'Made with :heart: by {config.creators}')
+    embed.set_footer(text=f'Made with :heart: by {creators}')
     await ctx.respond(embed=embed, file=discord_file)

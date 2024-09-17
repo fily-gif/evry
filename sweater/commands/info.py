@@ -3,7 +3,7 @@ import platform
 import psutil
 from sweater import bot
 import sweater.utils as utils
-import sweater.config as config
+from sweater.config import evryclr, creators
 
 @bot.slash_command(description="Get server information")
 async def server(ctx):
@@ -15,7 +15,7 @@ async def server(ctx):
     if guild.description is not None:
         description = guild.description
 
-    embed = discord.Embed(title=f'{guild.name}', description=f'{description}', color=config.evryclr)
+    embed = discord.Embed(title=f'{guild.name}', description=f'{description}', color=evryclr)
 
     embed.set_thumbnail(url=f'{guild.icon}')
 
@@ -26,7 +26,7 @@ async def server(ctx):
     embed.add_field(name='Server Roles', value=f'{len(guild.roles)}', inline=True)
     embed.add_field(name='Server Created At', value=discord_timestamp, inline=True)
 
-    embed.set_footer(text=f'Made with ❤️ by {config.creators}')
+    embed.set_footer(text=f'Made with ❤️ by {creators}')
 
 
     await ctx.respond(embed=embed)
@@ -43,7 +43,7 @@ async def ping(ctx):
 
 @bot.slash_command(description='Get the information about the bot!')
 async def about(ctx):
-    embed = discord.Embed(title='Info', description=None, color=config.evryclr)
+    embed = discord.Embed(title='Info', description=None, color=evryclr)
     embed.add_field(name='Python version', value=platform.python_version(), inline=True)
     embed.add_field(name='Pycord version', value=discord.__version__, inline=True)
     embed.add_field(name='Bot uptime', value=utils.get_uptime(), inline=True)
@@ -51,8 +51,8 @@ async def about(ctx):
     embed.add_field(name='CPU usage', value=f"{psutil.cpu_percent()}%", inline=True)
     embed.add_field(name='RAM usage', value=f'{psutil.virtual_memory().percent}%', inline=True)
     embed.add_field(name='Host', value=f'{platform.system()}, {platform.release()}', inline=True)
-    embed.add_field(name='Git hash', value=f'{utils.last_githash()}')
+    embed.add_field(name='Git hash', value=f'{utils.last_githash()}', inline=True)
 
-    embed.add_field(name='Made with ❤️', value=f'by {config.creators}')
+    embed.add_field(name='Made with ❤️', value=f'by {creators}')
 
     await ctx.respond(embed=embed)
