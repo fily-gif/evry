@@ -1,7 +1,7 @@
 from sweater import bot
 import discord
 import sweater.config as config
-from config import owners, token
+from sweater.config import owners, token
 import os
 import sweater.utils as utils
 import asyncio
